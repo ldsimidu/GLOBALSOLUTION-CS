@@ -5,10 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalSolution.SenseSpot.API.Controllers;
 
+/// <summary>
+/// Gerencia leituras ambientais, sincronizacao offline, analise de risco e alertas do BrightSpot.
+/// </summary>
 [ApiController]
 [Route("api/devices/{deviceId:int}/readings")]
 public class ReadingsController(AppDbContext context) : ControllerBase
 {
+    /// <summary>
+    /// Registra uma nova leitura ambiental para um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota quando o dispositivo coletar um valor de sensor.
+    /// O foco e armazenar a leitura, atualizar o historico do gadget, gerar alertas e recalcular o risco ambiental.
+    /// </remarks>
     [HttpPost]
     public async Task<ActionResult<object>> CreateReading(int deviceId, CreateSensorReadingRequest request)
     {
@@ -85,6 +95,13 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Lista o historico de leituras ambientais de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Pode ser filtrada por periodo usando os parametros <c>from</c> e <c>to</c>.
+    /// O foco desta rota e consultar a caixa-preta ambiental e o historico operacional do dispositivo.
+    /// </remarks>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> GetReadings(
         int deviceId,
@@ -131,6 +148,13 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         return Ok(readings);
     }
 
+    /// <summary>
+    /// Sincroniza leituras pendentes armazenadas offline.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota quando o gadget recuperar conectividade.
+    /// O foco e marcar leituras como sincronizadas e registrar o evento de envio posterior ao servidor.
+    /// </remarks>
     [HttpPost("/api/devices/{deviceId:int}/sync")]
     public async Task<ActionResult<object>> SyncPendingReadings(int deviceId)
     {
@@ -172,6 +196,12 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Retorna a avaliacao de risco mais recente de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// O foco desta rota e mostrar a interpretacao consolidada do ambiente, incluindo classificacao, resumo e acao recomendada.
+    /// </remarks>
     [HttpGet("/api/devices/{deviceId:int}/risk-assessment")]
     public async Task<ActionResult<object>> GetLatestRiskAssessment(int deviceId)
     {
@@ -188,6 +218,13 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         return Ok(assessment);
     }
 
+    /// <summary>
+    /// Lista os alertas de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Retorna eventos de anomalia gerados quando leituras ultrapassam limites configurados.
+    /// O foco desta rota e destacar ocorrencias que exigem atencao operacional.
+    /// </remarks>
     [HttpGet("/api/devices/{deviceId:int}/alerts")]
     public async Task<ActionResult<IEnumerable<Alert>>> GetAlerts(int deviceId)
     {
@@ -206,6 +243,13 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         return Ok(alerts);
     }
 
+    /// <summary>
+    /// Lista o historico de sincronizacoes do gadget.
+    /// </summary>
+    /// <remarks>
+    /// <c>sync-logs</c> registra quando o dispositivo guardou leituras offline ou quando enviou dados pendentes ao servidor.
+    /// O foco desta rota e provar rastreabilidade da caixa-preta ambiental e do fluxo offline/online do BrightSpot.
+    /// </remarks>
     [HttpGet("/api/devices/{deviceId:int}/sync-logs")]
     public async Task<ActionResult<IEnumerable<SyncLog>>> GetSyncLogs(int deviceId)
     {

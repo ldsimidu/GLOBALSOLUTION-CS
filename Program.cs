@@ -1,5 +1,7 @@
 using GlobalSolution.SenseSpot.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(oracleConnection));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "BrightSpot API",
+        Version = "v1",
+        Description = "API do BrightSpot para monitoramento ambiental contextual em ambientes de dificil acesso, com foco em gadgets, leituras, risco, alertas e sincronizacao offline."
+    });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+    }
+});
 
 var app = builder.Build();
 

@@ -5,10 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalSolution.SenseSpot.API.Controllers;
 
+/// <summary>
+/// Gerencia os gadgets BrightSpot, suas configuracoes operacionais e os sensores acoplados.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class DevicesController(AppDbContext context) : ControllerBase
 {
+    /// <summary>
+    /// Cadastra um novo gadget BrightSpot.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota para registrar um dispositivo que sera enviado a um ambiente hostil.
+    /// O foco da requisicao e criar a identidade do gadget e sua configuracao operacional inicial.
+    /// </remarks>
     [HttpPost]
     public async Task<ActionResult<object>> CreateDevice(CreateDeviceRequest request)
     {
@@ -44,6 +54,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         return CreatedAtAction(nameof(GetDeviceById), new { id = device.Id }, MapDeviceSummary(device));
     }
 
+    /// <summary>
+    /// Lista todos os gadgets cadastrados.
+    /// </summary>
+    /// <remarks>
+    /// Retorna uma visao resumida dos dispositivos para o dashboard.
+    /// O foco desta rota e mostrar status basico, quantidade de sensores e configuracao atual de cada gadget.
+    /// </remarks>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> GetDevices()
     {
@@ -94,6 +111,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// Busca o detalhe completo de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Retorna informacoes detalhadas do dispositivo, incluindo configuracao, sensores, ultimo risco calculado e alertas recentes.
+    /// O foco desta rota e alimentar a tela de detalhe do gadget no dashboard.
+    /// </remarks>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<object>> GetDeviceById(int id)
     {
@@ -170,6 +194,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Atualiza o status operacional de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota para informar mudancas de bateria, conectividade e disponibilidade do dispositivo.
+    /// O foco e refletir o estado atual do gadget em campo.
+    /// </remarks>
     [HttpPatch("{id:int}/status")]
     public async Task<ActionResult<object>> UpdateStatus(int id, UpdateDeviceStatusRequest request)
     {
@@ -186,6 +217,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         return Ok(MapDeviceSummary(device));
     }
 
+    /// <summary>
+    /// Atualiza a configuracao operacional do gadget.
+    /// </summary>
+    /// <remarks>
+    /// Aqui sao definidos modo de operacao, intervalo de coleta e limites de alerta por sensor.
+    /// O foco desta rota e controlar como o BrightSpot interpreta e reage ao ambiente.
+    /// </remarks>
     [HttpPatch("{id:int}/configuration")]
     public async Task<ActionResult<object>> UpdateConfiguration(int id, UpdateDeviceConfigurationRequest request)
     {
@@ -222,6 +260,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         return Ok(MapDeviceSummary(device));
     }
 
+    /// <summary>
+    /// Acopla um sensor a um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota para registrar quais sensores ambientais estao disponiveis em cada dispositivo.
+    /// O foco e montar a capacidade de leitura do gadget antes da operacao.
+    /// </remarks>
     [HttpPost("{id:int}/sensors")]
     public async Task<ActionResult<object>> AddSensor(int id, AddSensorRequest request)
     {
@@ -262,6 +307,13 @@ public class DevicesController(AppDbContext context) : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Lista os sensores acoplados a um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Retorna os sensores ativos do dispositivo, como temperatura, umidade, luminosidade, qualidade do ar e vibracao.
+    /// O foco desta rota e mostrar a composicao de leitura do gadget.
+    /// </remarks>
     [HttpGet("{id:int}/sensors")]
     public async Task<ActionResult<IEnumerable<object>>> GetSensors(int id)
     {
