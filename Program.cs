@@ -1,4 +1,6 @@
 using GlobalSolution.SenseSpot.API.Data;
+using GlobalSolution.SenseSpot.API.Middleware;
+using GlobalSolution.SenseSpot.API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -10,6 +12,8 @@ var oracleConnection = builder.Configuration.GetConnectionString("OracleConnecti
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(oracleConnection));
+builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddScoped<IRiskAssessmentService, RiskAssessmentService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -41,6 +45,10 @@ using (var scope = app.Services.CreateScope())
     {
         dbContext.Database.Migrate();
     }
+    catch (DbUpdateException ex)
+    {
+        logger.LogWarning(ex, "Database migration failed because Oracle rejected an update operation. The API will continue running, but database-dependent endpoints may fail until the connection and schema are fixed.");
+    }
     catch (Exception ex)
     {
         logger.LogWarning(ex, "Database migration could not be applied during startup. The API will continue running, but database-dependent endpoints may fail until the Oracle connection is available.");
@@ -52,6 +60,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

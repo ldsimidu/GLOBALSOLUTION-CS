@@ -9,7 +9,7 @@ namespace GlobalSolution.SenseSpot.API.Controllers;
 /// Gerencia os gadgets BrightSpot, suas configuracoes operacionais e os sensores acoplados.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/devices")]
 public class DevicesController(AppDbContext context) : ControllerBase
 {
     /// <summary>
@@ -337,6 +337,46 @@ public class DevicesController(AppDbContext context) : ControllerBase
             x.Unit,
             x.IsActive
         }));
+    }
+
+    /// <summary>
+    /// Remove um gadget BrightSpot e todo o historico operacional vinculado a ele.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota quando um dispositivo for descartado da operacao.
+    /// A remocao inclui configuracao, sensores, leituras, alertas, avaliacoes de risco e logs de sincronizacao.
+    /// </remarks>
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteDevice(int id)
+    {
+        var device = await context.Devices.FirstOrDefaultAsync(x => x.Id == id);
+        if (device is null)
+        {
+            return NotFound("Device not found.");
+        }
+
+        var alerts = await context.Alerts.Where(x => x.DeviceId == id).ToListAsync();
+        var riskAssessments = await context.RiskAssessments.Where(x => x.DeviceId == id).ToListAsync();
+        var syncLogs = await context.SyncLogs.Where(x => x.DeviceId == id).ToListAsync();
+        var readings = await context.SensorReadings.Where(x => x.DeviceId == id).ToListAsync();
+        var sensors = await context.Sensors.Where(x => x.DeviceId == id).ToListAsync();
+        var configuration = await context.DeviceConfigurations.FirstOrDefaultAsync(x => x.DeviceId == id);
+
+        context.Alerts.RemoveRange(alerts);
+        context.RiskAssessments.RemoveRange(riskAssessments);
+        context.SyncLogs.RemoveRange(syncLogs);
+        context.SensorReadings.RemoveRange(readings);
+        context.Sensors.RemoveRange(sensors);
+
+        if (configuration is not null)
+        {
+            context.DeviceConfigurations.Remove(configuration);
+        }
+
+        context.Devices.Remove(device);
+        await context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     private static object MapDeviceSummary(Device device)

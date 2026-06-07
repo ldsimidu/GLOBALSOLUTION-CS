@@ -1,5 +1,6 @@
 using GlobalSolution.SenseSpot.API.Data;
 using GlobalSolution.SenseSpot.API.Models;
+using GlobalSolution.SenseSpot.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,10 @@ namespace GlobalSolution.SenseSpot.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/devices/{deviceId:int}/readings")]
-public class ReadingsController(AppDbContext context) : ControllerBase
+public class ReadingsController(
+    AppDbContext context,
+    IAlertService alertService,
+    IRiskAssessmentService riskAssessmentService) : ControllerBase
 {
     /// <summary>
     /// Registra uma nova leitura ambiental para um gadget.
@@ -58,15 +62,6 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         context.SensorReadings.Add(reading);
         device.RegisterReading(reading.RecordedAtUtc);
 
-        var alert = BuildAlertIfNeeded(device, sensor, reading);
-        if (alert is not null)
-        {
-            context.Alerts.Add(alert);
-        }
-
-        var assessment = await BuildRiskAssessmentAsync(deviceId, device.Configuration);
-        context.RiskAssessments.Add(assessment);
-
         if (!isSynced)
         {
             context.SyncLogs.Add(new SyncLog
@@ -78,6 +73,17 @@ public class ReadingsController(AppDbContext context) : ControllerBase
                 Details = "Reading stored locally until connectivity is restored."
             });
         }
+
+        await context.SaveChangesAsync();
+
+        var alert = alertService.BuildAutomaticAlert(device, sensor, reading);
+        if (alert is not null)
+        {
+            context.Alerts.Add(alert);
+        }
+
+        var assessment = await riskAssessmentService.BuildLatestAssessmentAsync(deviceId, device.Configuration);
+        context.RiskAssessments.Add(assessment);
 
         await context.SaveChangesAsync();
 
@@ -244,6 +250,96 @@ public class ReadingsController(AppDbContext context) : ControllerBase
     }
 
     /// <summary>
+    /// Cadastra um alerta manual para um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota para registrar alertas operacionais que nao nasceram automaticamente de uma leitura,
+    /// como bloqueio de rota, dano fisico no gadget ou recomendacao de retirada preventiva.
+    /// Quando informado, o <c>SensorReadingId</c> precisa pertencer ao mesmo gadget.
+    /// </remarks>
+    [HttpPost("/api/devices/{deviceId:int}/alerts")]
+    public async Task<ActionResult<object>> CreateAlert(int deviceId, CreateAlertRequest request)
+    {
+        var deviceExists = await context.Devices
+            .CountAsync(x => x.Id == deviceId) > 0;
+        if (!deviceExists)
+        {
+            return NotFound("Device not found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest("Alert message is required.");
+        }
+
+        var triggeredAtUtc = request.TriggeredAtUtc.HasValue
+            ? DateTime.SpecifyKind(request.TriggeredAtUtc.Value, DateTimeKind.Utc)
+            : DateTime.UtcNow;
+
+        if (triggeredAtUtc > DateTime.UtcNow.AddMinutes(5))
+        {
+            return BadRequest("TriggeredAtUtc cannot be in the future.");
+        }
+
+        if (request.SensorReadingId.HasValue)
+        {
+            var readingExists = await context.SensorReadings
+                .CountAsync(x => x.Id == request.SensorReadingId.Value && x.DeviceId == deviceId) > 0;
+            if (!readingExists)
+            {
+                return BadRequest("SensorReadingId does not belong to this device.");
+            }
+        }
+
+        var alert = new Alert
+        {
+            DeviceId = deviceId,
+            SensorReadingId = request.SensorReadingId,
+            Severity = request.Severity,
+            Message = request.Message.Trim(),
+            TriggeredAtUtc = triggeredAtUtc
+        };
+
+        context.Alerts.Add(alert);
+        await context.SaveChangesAsync();
+
+        return Created($"/api/devices/{deviceId}/alerts/{alert.Id}", new
+        {
+            alert.Id,
+            alert.DeviceId,
+            alert.SensorReadingId,
+            alert.Severity,
+            alert.Message,
+            alert.TriggeredAtUtc,
+            alert.IsAcknowledged
+        });
+    }
+
+    /// <summary>
+    /// Remove um alerta especifico de um gadget.
+    /// </summary>
+    /// <remarks>
+    /// Use esta rota para limpar alertas descartados pela operacao depois da analise do evento.
+    /// A leitura original permanece preservada no historico ambiental do gadget.
+    /// </remarks>
+    [HttpDelete("/api/devices/{deviceId:int}/alerts/{alertId:int}")]
+    public async Task<IActionResult> DeleteAlert(int deviceId, int alertId)
+    {
+        var alert = await context.Alerts
+            .FirstOrDefaultAsync(x => x.Id == alertId && x.DeviceId == deviceId);
+
+        if (alert is null)
+        {
+            return NotFound("Alert not found for this device.");
+        }
+
+        context.Alerts.Remove(alert);
+        await context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Lista o historico de sincronizacoes do gadget.
     /// </summary>
     /// <remarks>
@@ -268,127 +364,4 @@ public class ReadingsController(AppDbContext context) : ControllerBase
         return Ok(logs);
     }
 
-    private Alert? BuildAlertIfNeeded(Device device, Sensor sensor, SensorReading reading)
-    {
-        var configuration = device.Configuration;
-        if (configuration is null)
-        {
-            return null;
-        }
-
-        var threshold = sensor.SensorType switch
-        {
-            SensorType.Temperature => configuration.TemperatureAlertThreshold,
-            SensorType.Humidity => configuration.HumidityAlertThreshold,
-            SensorType.Luminosity => configuration.LuminosityAlertThreshold,
-            SensorType.AirQuality => configuration.AirQualityAlertThreshold,
-            SensorType.Vibration => configuration.VibrationAlertThreshold,
-            _ => decimal.MaxValue
-        };
-
-        var triggered = sensor.SensorType == SensorType.Luminosity
-            ? reading.Value <= threshold
-            : reading.Value >= threshold;
-
-        if (!triggered)
-        {
-            return null;
-        }
-
-        return new Alert
-        {
-            DeviceId = device.Id,
-            SensorReadingId = reading.Id,
-            Severity = sensor.SensorType is SensorType.AirQuality or SensorType.Vibration
-                ? AlertSeverity.Critical
-                : AlertSeverity.Warning,
-            Message = $"{sensor.SensorType} reached a critical threshold with value {reading.Value} {sensor.Unit}."
-        };
-    }
-
-    private async Task<RiskAssessment> BuildRiskAssessmentAsync(int deviceId, DeviceConfiguration? configuration)
-    {
-        var latestReadings = await context.SensorReadings
-            .Include(x => x.Sensor)
-            .Where(x => x.DeviceId == deviceId)
-            .OrderByDescending(x => x.RecordedAtUtc)
-            .Take(10)
-            .ToListAsync();
-
-        if (configuration is null || latestReadings.Count == 0)
-        {
-            return new RiskAssessment
-            {
-                DeviceId = deviceId,
-                Classification = RiskLevel.Safe,
-                Summary = "Insufficient data to detect environmental anomalies.",
-                RecommendedAction = "Advance with monitoring.",
-                PrimaryRiskFactors = "No significant risk factors detected."
-            };
-        }
-
-        var criticalFactors = new List<string>();
-        var attentionFactors = new List<string>();
-
-        foreach (var reading in latestReadings)
-        {
-            var sensorType = reading.Sensor!.SensorType;
-            var value = reading.Value;
-
-            switch (sensorType)
-            {
-                case SensorType.AirQuality when value >= configuration.AirQualityAlertThreshold:
-                    criticalFactors.Add("air quality");
-                    break;
-                case SensorType.Vibration when value >= configuration.VibrationAlertThreshold:
-                    criticalFactors.Add("vibration");
-                    break;
-                case SensorType.Temperature when value >= configuration.TemperatureAlertThreshold:
-                    attentionFactors.Add("temperature");
-                    break;
-                case SensorType.Humidity when value >= configuration.HumidityAlertThreshold:
-                    attentionFactors.Add("humidity");
-                    break;
-                case SensorType.Luminosity when value <= configuration.LuminosityAlertThreshold:
-                    attentionFactors.Add("luminosity");
-                    break;
-            }
-        }
-
-        RiskLevel classification;
-        string summary;
-        string action;
-        string factors;
-
-        if (criticalFactors.Count > 0)
-        {
-            classification = RiskLevel.Critical;
-            factors = string.Join(", ", criticalFactors.Distinct());
-            summary = $"Critical environment detected due to {factors}.";
-            action = "Avoid human entry and maintain remote operation.";
-        }
-        else if (attentionFactors.Count > 0)
-        {
-            classification = RiskLevel.Attention;
-            factors = string.Join(", ", attentionFactors.Distinct());
-            summary = $"Environmental attention required due to {factors}.";
-            action = "Pause, reassess conditions, and continue with caution.";
-        }
-        else
-        {
-            classification = RiskLevel.Safe;
-            factors = "No significant risk factors detected.";
-            summary = "Environment is within expected operating thresholds.";
-            action = "Advance with monitoring.";
-        }
-
-        return new RiskAssessment
-        {
-            DeviceId = deviceId,
-            Classification = classification,
-            Summary = summary,
-            RecommendedAction = action,
-            PrimaryRiskFactors = factors
-        };
-    }
 }

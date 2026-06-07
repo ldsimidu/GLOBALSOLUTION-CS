@@ -32,3 +32,9 @@ public record CreateSensorReadingRequest(
     decimal Value,
     DateTime RecordedAtUtc,
     ConnectionStatus ConnectionStatusAtCollection);
+
+public record CreateAlertRequest(
+    AlertSeverity Severity,
+    string Message,
+    DateTime? TriggeredAtUtc,
+    int? SensorReadingId);
