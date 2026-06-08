@@ -1,0 +1,265 @@
+@startuml BrightSpotClassDiagram
+title Projeto BrightSpot API - Diagrama de Classes
+
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #F2F2F2
+  BorderColor #7A7A7A
+  ArrowColor #4F4F4F
+  FontColor #222222
+  HeaderBackgroundColor #E6E6E6
+}
+
+package "Fluxo da API" {
+  package "Controllers" {
+    class DevicesController <<Controller>> {
+      -AppDbContext _context
+      +CreateDevice(CreateDeviceRequest request)
+      +GetDevices()
+      +GetDeviceById(int id)
+      +UpdateStatus(int id, UpdateDeviceStatusRequest request)
+      +UpdateConfiguration(int id, UpdateDeviceConfigurationRequest request)
+      +AddSensor(int id, AddSensorRequest request)
+      +GetSensors(int id)
+      +DeleteDevice(int id)
+    }
+
+    class ReadingsController <<Controller>> {
+      -AppDbContext _context
+      -IAlertService _alertService
+      -IRiskAssessmentService _riskAssessmentService
+      +CreateReading(int deviceId, CreateSensorReadingRequest request)
+      +GetReadings(int deviceId, DateTime? from, DateTime? to)
+      +SyncPendingReadings(int deviceId)
+      +GetLatestRiskAssessment(int deviceId)
+      +GetAlerts(int deviceId)
+      +CreateAlert(int deviceId, CreateAlertRequest request)
+      +DeleteAlert(int deviceId, int alertId)
+      +GetSyncLogs(int deviceId)
+    }
+  }
+
+  package "Services" {
+    interface IAlertService {
+      +BuildAutomaticAlert(Device device, Sensor sensor, SensorReading reading)
+    }
+
+    class AlertService <<Service>> {
+      +BuildAutomaticAlert(Device device, Sensor sensor, SensorReading reading)
+    }
+
+    interface IRiskAssessmentService {
+      +BuildLatestAssessmentAsync(int deviceId, DeviceConfiguration? config, CancellationToken ct)
+    }
+
+    class RiskAssessmentService <<Service>> {
+      -AppDbContext _context
+      +BuildLatestAssessmentAsync(int deviceId, DeviceConfiguration? config, CancellationToken ct)
+    }
+  }
+
+  package "Data" {
+    class AppDbContext <<DbContext>> {
+      +DbSet<Device> Devices
+      +DbSet<DeviceConfiguration> DeviceConfigurations
+      +DbSet<Sensor> Sensors
+      +DbSet<SensorReading> SensorReadings
+      +DbSet<Alert> Alerts
+      +DbSet<RiskAssessment> RiskAssessments
+      +DbSet<SyncLog> SyncLogs
+      #OnModelCreating(ModelBuilder modelBuilder)
+    }
+
+    class AppDbContextFactory <<Factory>> {
+      +CreateDbContext(string[] args)
+    }
+  }
+
+  class ExceptionHandlingMiddleware <<Middleware>> {
+    +InvokeAsync(HttpContext context)
+    -WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
+  }
+}
+
+package "Modelo de domínio" {
+  abstract class BaseEntity {
+    +int Id
+    +DateTime CreatedAtUtc
+    +DateTime UpdatedAtUtc
+    +Touch()
+  }
+
+  class Device {
+    +string Name
+    +string SerialNumber
+    +string EnvironmentContext
+    +int BatteryLevel
+    +ConnectionStatus ConnectionStatus
+    +DateTime? LastReadingAtUtc
+    +bool IsActive
+    +UpdateStatus(int batteryLevel, ConnectionStatus status)
+    +RegisterReading(DateTime recordedAtUtc)
+  }
+
+  class DeviceConfiguration {
+    +int DeviceId
+    +OperationMode OperationMode
+    +int CollectionIntervalSeconds
+    +decimal TemperatureAlertThreshold
+    +decimal HumidityAlertThreshold
+    +decimal LuminosityAlertThreshold
+    +decimal AirQualityAlertThreshold
+    +decimal VibrationAlertThreshold
+  }
+
+  abstract class Sensor {
+    +int DeviceId
+    +string Name
+    +SensorType SensorType
+    +string Unit
+    +bool IsActive
+  }
+
+  class SensorReading {
+    +int DeviceId
+    +int SensorId
+    +decimal Value
+    +DateTime RecordedAtUtc
+    +DateTime ReceivedAtUtc
+    +bool IsSynced
+    +ConnectionStatus ConnectionStatusAtCollection
+    +MarkAsSynced()
+  }
+
+  class Alert {
+    +int DeviceId
+    +int? SensorReadingId
+    +AlertSeverity Severity
+    +string Message
+    +DateTime TriggeredAtUtc
+    +bool IsAcknowledged
+  }
+
+  class RiskAssessment {
+    +int DeviceId
+    +RiskLevel Classification
+    +string Summary
+    +string RecommendedAction
+    +string PrimaryRiskFactors
+    +DateTime AssessedAtUtc
+  }
+
+  class SyncLog {
+    +int DeviceId
+    +DateTime OccurredAtUtc
+    +int PendingReadingsCount
+    +string Action
+    +string Status
+    +string Details
+  }
+
+  class TemperatureSensor
+  class HumiditySensor
+  class LuminositySensor
+  class AirQualitySensor
+  class VibrationSensor
+}
+
+package "DTOs e Enums" {
+  class CreateDeviceRequest <<record>>
+  class UpdateDeviceStatusRequest <<record>>
+  class UpdateDeviceConfigurationRequest <<record>>
+  class AddSensorRequest <<record>>
+  class CreateSensorReadingRequest <<record>>
+  class CreateAlertRequest <<record>>
+
+  enum OperationMode {
+    Exploration
+    Economy
+    BlackBox
+    Alert
+  }
+
+  enum ConnectionStatus {
+    Online
+    Offline
+    Intermittent
+  }
+
+  enum SensorType {
+    Temperature
+    Humidity
+    Luminosity
+    AirQuality
+    Vibration
+  }
+
+  enum AlertSeverity {
+    Info
+    Warning
+    Critical
+  }
+
+  enum RiskLevel {
+    Safe
+    Attention
+    Critical
+  }
+
+  enum RecommendedActionType {
+    Advance
+    Pause
+    Retreat
+    RemoteOnly
+    SendRobot
+    AvoidHumanEntry
+  }
+}
+
+DevicesController --> AppDbContext : usa EF Core
+ReadingsController --> AppDbContext : usa EF Core
+ReadingsController --> IAlertService : alertas
+ReadingsController --> IRiskAssessmentService : risco
+ExceptionHandlingMiddleware ..> DevicesController : trata falhas
+ExceptionHandlingMiddleware ..> ReadingsController : trata falhas
+
+IAlertService <|.. AlertService
+IRiskAssessmentService <|.. RiskAssessmentService
+RiskAssessmentService --> AppDbContext : consulta leituras
+AppDbContextFactory --> AppDbContext : cria
+
+BaseEntity <|-- Device
+note right of BaseEntity
+  As demais entidades persistidas tambem herdam
+  de BaseEntity. A exportacao simplifica estas
+  linhas para preservar a leitura do diagrama.
+end note
+
+Device "1" *-- "0..1" DeviceConfiguration : configura
+Device "1" *-- "0..*" Sensor : possui
+Sensor "1" --> "0..*" SensorReading : coleta
+Alert "0..*" --> "0..1" SensorReading : referencia
+
+RiskAssessment ..> Device : DeviceId
+SyncLog ..> Device : DeviceId
+note right of SyncLog
+  RiskAssessment e SyncLog pertencem ao Device
+  por DeviceId. A relacao aparece como atributo
+  para evitar cruzamento excessivo de setas.
+end note
+
+Sensor <|-- TemperatureSensor
+Sensor <|-- HumiditySensor
+Sensor <|-- LuminositySensor
+Sensor <|-- AirQualitySensor
+Sensor <|-- VibrationSensor
+
+' DTOs e enums ficam agrupados como apoio visual para evitar cruzamento excessivo
+' de setas no diagrama exportado.
+
+@enduml

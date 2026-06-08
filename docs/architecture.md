@@ -1,55 +1,46 @@
 # Diagrama do projeto
 
-O diagrama abaixo resume a arquitetura da API BrightSpot e o fluxo principal de dados.
+Este documento apresenta o diagrama de classes da BrightSpot API. A versão principal está exportada em PNG para facilitar a visualização no GitHub e em correções acadêmicas. A fonte em PlantUML também está disponível para manutenção futura.
 
-```mermaid
-flowchart TD
-    Client["Swagger / Cliente HTTP"] --> Controllers["Controllers ASP.NET Core"]
-    Controllers --> Devices["DevicesController"]
-    Controllers --> Readings["ReadingsController"]
+- Fonte PlantUML: [architecture.puml](architecture.puml)
+- Imagem exportada: [architecture.png](architecture.png)
 
-    Devices --> DbContext["AppDbContext"]
-    Readings --> AlertService["IAlertService / AlertService"]
-    Readings --> RiskService["IRiskAssessmentService / RiskAssessmentService"]
-    Readings --> DbContext
+![Diagrama de classes da BrightSpot API](architecture.png)
 
-    AlertService --> Alert["Alert"]
-    RiskService --> Risk["RiskAssessment"]
-    RiskService --> DbContext
+## Leitura do diagrama
 
-    DbContext --> Oracle["Oracle Database"]
+O diagrama foi organizado em duas áreas principais para preservar a legibilidade:
 
-    Device["Device"] --> Configuration["DeviceConfiguration"]
-    Device --> Sensor["Sensor abstrato"]
-    Sensor --> Temperature["TemperatureSensor"]
-    Sensor --> Humidity["HumiditySensor"]
-    Sensor --> Luminosity["LuminositySensor"]
-    Sensor --> AirQuality["AirQualitySensor"]
-    Sensor --> Vibration["VibrationSensor"]
-    Device --> Reading["SensorReading"]
-    Device --> Alert
-    Device --> Risk
-    Device --> SyncLog["SyncLog"]
-```
+- `Fluxo da API`: mostra os `Controllers`, os serviços de domínio, o acesso a dados com Entity Framework Core, a conexão com Oracle, os DTOs/records, os enums e o middleware de tratamento de exceções.
+- `Modelo de domínio e persistência`: mostra as entidades principais, a herança de `BaseEntity`, a abstração `Sensor`, as especializações concretas de sensores e os relacionamentos centrais do agregado `Device`.
 
-## Fluxo de leitura ambiental
+## Arquitetura representada
 
-```mermaid
-sequenceDiagram
-    participant Client as Cliente / Swagger
-    participant API as ReadingsController
-    participant DB as Oracle
-    participant Alert as AlertService
-    participant Risk as RiskAssessmentService
+O fluxo principal da aplicação parte dos controllers ASP.NET Core:
 
-    Client->>API: POST /api/devices/{id}/readings
-    API->>DB: Valida device e sensor
-    API->>DB: Salva leitura e log offline se necessario
-    API->>Alert: Verifica thresholds configurados
-    Alert-->>API: Retorna alerta automatico opcional
-    API->>Risk: Calcula risco com leituras recentes
-    Risk->>DB: Consulta ultimas leituras
-    Risk-->>API: Retorna classificacao de risco
-    API->>DB: Salva alerta e avaliacao de risco
-    API-->>Client: 201 Created com leitura e risco
-```
+- `DevicesController` concentra o CRUD do gadget BrightSpot, configuração operacional, sensores e exclusão do dispositivo.
+- `ReadingsController` concentra leituras ambientais, sincronização offline, avaliação de risco e alertas.
+- `ExceptionHandlingMiddleware` protege as rotas e converte falhas conhecidas ou inesperadas em respostas controladas.
+- `IAlertService` e `IRiskAssessmentService` separam regras de negócio dos controllers.
+- `AppDbContext` centraliza os `DbSet` e o mapeamento do Entity Framework Core para persistência Oracle.
+
+## Modelo de domínio
+
+O agregado central é `Device`. A partir dele são organizados:
+
+- `DeviceConfiguration`: configuração de modo de operação, intervalo de coleta e thresholds ambientais.
+- `Sensor`: classe abstrata para sensores acoplados ao gadget.
+- `TemperatureSensor`, `HumiditySensor`, `LuminositySensor`, `AirQualitySensor` e `VibrationSensor`: especializações concretas de sensores.
+- `SensorReading`: leitura ambiental coletada por sensor, com data de coleta, data de recebimento e status de sincronização.
+- `Alert`: alerta manual ou automático, opcionalmente associado a uma leitura.
+- `RiskAssessment`: avaliação de risco calculada a partir das leituras recentes.
+- `SyncLog`: histórico de sincronizações e leituras armazenadas offline.
+
+Algumas relações repetitivas foram simplificadas na imagem para evitar setas sobrepostas. Por exemplo, as entidades persistidas herdam de `BaseEntity`, mas o diagrama mostra essa herança de forma resumida. Da mesma forma, `RiskAssessment` e `SyncLog` pertencem ao `Device` por `DeviceId`, mas aparecem com explicação textual para manter a leitura limpa.
+
+## Legenda
+
+- Linhas contínuas indicam uso, composição ou relacionamento entre classes.
+- Linhas tracejadas indicam dependência, herança ou simplificação visual.
+- Caixas cinza representam classes, records ou enums.
+- DTOs e enums aparecem agrupados como contratos de apoio para evitar cruzamento excessivo de setas.
