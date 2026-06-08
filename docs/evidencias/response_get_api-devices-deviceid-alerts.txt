@@ -1,0 +1,99 @@
+[
+  {
+    "deviceId": 41,
+    "sensorReadingId": 22,
+    "severity": 1,
+    "message": "ALTA TEMPERATURA",
+    "triggeredAtUtc": "2026-06-08T05:09:39.399",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 24,
+    "createdAtUtc": "2026-06-08T05:10:13.9910103",
+    "updatedAtUtc": "2026-06-08T05:10:13.9910105"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 23,
+    "severity": 3,
+    "message": "AirQuality reached a critical threshold with value 100 aqi.",
+    "triggeredAtUtc": "2026-06-08T05:08:29.0822629",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 23,
+    "createdAtUtc": "2026-06-08T05:08:29.0822643",
+    "updatedAtUtc": "2026-06-08T05:08:29.0822645"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 21,
+    "severity": 1,
+    "message": "ALTA TEMPERATURA",
+    "triggeredAtUtc": "2026-06-08T04:55:45.133",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 22,
+    "createdAtUtc": "2026-06-08T04:59:39.8492407",
+    "updatedAtUtc": "2026-06-08T04:59:39.8492408"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 21,
+    "severity": 3,
+    "message": "Vibration reached a critical threshold with value 10 mm/s.",
+    "triggeredAtUtc": "2026-06-08T04:54:28.6100602",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 21,
+    "createdAtUtc": "2026-06-08T04:54:28.6100628",
+    "updatedAtUtc": "2026-06-08T04:54:28.6100629"
+  }
+][
+  {
+    "deviceId": 41,
+    "sensorReadingId": 22,
+    "severity": 1,
+    "message": "ALTA TEMPERATURA",
+    "triggeredAtUtc": "2026-06-08T05:09:39.399",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 24,
+    "createdAtUtc": "2026-06-08T05:10:13.9910103",
+    "updatedAtUtc": "2026-06-08T05:10:13.9910105"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 23,
+    "severity": 3,
+    "message": "AirQuality reached a critical threshold with value 100 aqi.",
+    "triggeredAtUtc": "2026-06-08T05:08:29.0822629",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 23,
+    "createdAtUtc": "2026-06-08T05:08:29.0822643",
+    "updatedAtUtc": "2026-06-08T05:08:29.0822645"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 21,
+    "severity": 1,
+    "message": "ALTA TEMPERATURA",
+    "triggeredAtUtc": "2026-06-08T04:55:45.133",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 22,
+    "createdAtUtc": "2026-06-08T04:59:39.8492407",
+    "updatedAtUtc": "2026-06-08T04:59:39.8492408"
+  },
+  {
+    "deviceId": 41,
+    "sensorReadingId": 21,
+    "severity": 3,
+    "message": "Vibration reached a critical threshold with value 10 mm/s.",
+    "triggeredAtUtc": "2026-06-08T04:54:28.6100602",
+    "isAcknowledged": false,
+    "device": null,
+    "id": 21,
+    "createdAtUtc": "2026-06-08T04:54:28.6100628",
+    "updatedAtUtc": "2026-06-08T04:54:28.6100629"
+  }
+]

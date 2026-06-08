@@ -1,0 +1,84 @@
+{
+  "id": 41,
+  "name": "ExplorationDevice-04",
+  "serialNumber": "12345678",
+  "environmentContext": "Space Exploration",
+  "batteryLevel": 20,
+  "connectionStatus": 1,
+  "lastReadingAtUtc": "2026-06-08T05:08:00.629",
+  "isActive": false,
+  "configuration": {
+    "id": 41,
+    "deviceId": 41,
+    "operationMode": 2,
+    "collectionIntervalSeconds": 50,
+    "temperatureAlertThreshold": 50,
+    "humidityAlertThreshold": 50,
+    "luminosityAlertThreshold": 50,
+    "airQualityAlertThreshold": 50,
+    "vibrationAlertThreshold": 50
+  },
+  "sensors": [
+    {
+      "id": 21,
+      "name": "SENSOR DE LUMINOSIDADE",
+      "sensorType": 5,
+      "unit": "mm/s",
+      "isActive": true
+    },
+    {
+      "id": 22,
+      "name": "SENSOR DE TEMPERATURA",
+      "sensorType": 4,
+      "unit": "aqi",
+      "isActive": true
+    }
+  ],
+  "latestRiskAssessment": {
+    "id": 23,
+    "deviceId": 41,
+    "classification": 3,
+    "summary": "Critical environment detected due to air quality.",
+    "recommendedAction": "Avoid human entry and maintain remote operation.",
+    "primaryRiskFactors": "air quality",
+    "assessedAtUtc": "2026-06-08T05:08:29.1735642"
+  },
+  "recentAlerts": [
+    {
+      "id": 24,
+      "deviceId": 41,
+      "sensorReadingId": 22,
+      "severity": 1,
+      "message": "ALTA TEMPERATURA",
+      "triggeredAtUtc": "2026-06-08T05:09:39.399",
+      "isAcknowledged": false
+    },
+    {
+      "id": 23,
+      "deviceId": 41,
+      "sensorReadingId": 23,
+      "severity": 3,
+      "message": "AirQuality reached a critical threshold with value 100 aqi.",
+      "triggeredAtUtc": "2026-06-08T05:08:29.0822629",
+      "isAcknowledged": false
+    },
+    {
+      "id": 22,
+      "deviceId": 41,
+      "sensorReadingId": 21,
+      "severity": 1,
+      "message": "ALTA TEMPERATURA",
+      "triggeredAtUtc": "2026-06-08T04:55:45.133",
+      "isAcknowledged": false
+    },
+    {
+      "id": 21,
+      "deviceId": 41,
+      "sensorReadingId": 21,
+      "severity": 3,
+      "message": "Vibration reached a critical threshold with value 10 mm/s.",
+      "triggeredAtUtc": "2026-06-08T04:54:28.6100602",
+      "isAcknowledged": false
+    }
+  ]
+}

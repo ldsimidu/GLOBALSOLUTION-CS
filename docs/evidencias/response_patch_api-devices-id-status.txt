@@ -1,0 +1,11 @@
+{
+  "id": 41,
+  "name": "ExplorationDevice-04",
+  "serialNumber": "12345678",
+  "environmentContext": "Space Exploration",
+  "batteryLevel": 46,
+  "connectionStatus": 1,
+  "lastReadingAtUtc": "2026-06-08T05:08:00.629",
+  "isActive": true,
+  "configuration": null
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 21,
+    "name": "SENSOR DE LUMINOSIDADE",
+    "sensorType": 5,
+    "unit": "mm/s",
+    "isActive": true
+  },
+  {
+    "id": 22,
+    "name": "SENSOR DE TEMPERATURA",
+    "sensorType": 4,
+    "unit": "aqi",
+    "isActive": true
+  },
+  {
+    "id": 23,
+    "name": "SENSOR DE TEMPERATURA",
+    "sensorType": 5,
+    "unit": "mm/s",
+    "isActive": true
+  }
+]

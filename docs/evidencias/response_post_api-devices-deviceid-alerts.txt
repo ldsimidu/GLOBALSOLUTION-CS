@@ -1,0 +1,9 @@
+{
+  "id": 26,
+  "deviceId": 41,
+  "sensorReadingId": 23,
+  "severity": 0,
+  "message": "TEMPERATURA OK",
+  "triggeredAtUtc": "2026-06-08T05:09:39.399Z",
+  "isAcknowledged": false
+}

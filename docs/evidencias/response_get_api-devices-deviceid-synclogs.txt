@@ -1,0 +1,74 @@
+[
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T05:36:09.4926956",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 26,
+    "createdAtUtc": "2026-06-08T05:36:09.4926961",
+    "updatedAtUtc": "2026-06-08T05:36:09.4926962"
+  },
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T05:35:38.9089429",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 25,
+    "createdAtUtc": "2026-06-08T05:35:38.9089435",
+    "updatedAtUtc": "2026-06-08T05:35:38.9089435"
+  },
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T05:34:40.6403029",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 24,
+    "createdAtUtc": "2026-06-08T05:34:40.6403033",
+    "updatedAtUtc": "2026-06-08T05:34:40.6403033"
+  },
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T05:11:47.939485",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 23,
+    "createdAtUtc": "2026-06-08T05:11:47.9394857",
+    "updatedAtUtc": "2026-06-08T05:11:47.9394858"
+  },
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T05:09:02.6131395",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 22,
+    "createdAtUtc": "2026-06-08T05:09:02.6131403",
+    "updatedAtUtc": "2026-06-08T05:09:02.6131404"
+  },
+  {
+    "deviceId": 41,
+    "occurredAtUtc": "2026-06-08T04:55:10.4353496",
+    "pendingReadingsCount": 0,
+    "action": "ManualSync",
+    "status": "Completed",
+    "details": "No pending readings were found.",
+    "device": null,
+    "id": 21,
+    "createdAtUtc": "2026-06-08T04:55:10.435351",
+    "updatedAtUtc": "2026-06-08T04:55:10.4353512"
+  }
+]

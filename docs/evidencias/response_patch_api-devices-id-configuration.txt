@@ -1,0 +1,21 @@
+{
+  "id": 41,
+  "name": "ExplorationDevice-04",
+  "serialNumber": "12345678",
+  "environmentContext": "Space Exploration",
+  "batteryLevel": 46,
+  "connectionStatus": 1,
+  "lastReadingAtUtc": "2026-06-08T05:08:00.629",
+  "isActive": true,
+  "configuration": {
+    "id": 41,
+    "deviceId": 41,
+    "operationMode": 1,
+    "collectionIntervalSeconds": 30,
+    "temperatureAlertThreshold": 40,
+    "humidityAlertThreshold": 50,
+    "luminosityAlertThreshold": 60,
+    "airQualityAlertThreshold": 70,
+    "vibrationAlertThreshold": 80
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": 23,
+  "name": "SENSOR DE TEMPERATURA",
+  "sensorType": 5,
+  "unit": "mm/s",
+  "deviceId": 41
+}

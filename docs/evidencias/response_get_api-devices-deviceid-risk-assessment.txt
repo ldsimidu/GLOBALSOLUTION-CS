@@ -1,0 +1,12 @@
+{
+  "deviceId": 41,
+  "classification": 3,
+  "summary": "Critical environment detected due to air quality.",
+  "recommendedAction": "Avoid human entry and maintain remote operation.",
+  "primaryRiskFactors": "air quality",
+  "assessedAtUtc": "2026-06-08T05:35:50.0083218",
+  "device": null,
+  "id": 27,
+  "createdAtUtc": "2026-06-08T05:35:50.0083219",
+  "updatedAtUtc": "2026-06-08T05:35:50.008322"
+}

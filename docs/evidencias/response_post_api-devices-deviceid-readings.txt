@@ -1,0 +1,11 @@
+{
+  "id": 24,
+  "deviceId": 41,
+  "sensorId": 23,
+  "value": 20,
+  "recordedAtUtc": "2026-06-08T05:08:00.629Z",
+  "receivedAtUtc": "2026-06-08T05:30:35.2525776Z",
+  "isSynced": true,
+  "latestRisk": 3,
+  "recommendedAction": "Avoid human entry and maintain remote operation."
+}

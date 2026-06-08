@@ -1,0 +1,42 @@
+[
+  {
+    "id": 22,
+    "sensorId": 21,
+    "sensorName": "SENSOR DE LUMINOSIDADE",
+    "value": 10,
+    "recordedAtUtc": "2026-06-08T05:08:00.629",
+    "receivedAtUtc": "2026-06-08T05:08:16.0647933",
+    "isSynced": true,
+    "connectionStatusAtCollection": 1
+  },
+  {
+    "id": 23,
+    "sensorId": 22,
+    "sensorName": "SENSOR DE TEMPERATURA",
+    "value": 100,
+    "recordedAtUtc": "2026-06-08T05:08:00.629",
+    "receivedAtUtc": "2026-06-08T05:08:29.0194108",
+    "isSynced": true,
+    "connectionStatusAtCollection": 1
+  },
+  {
+    "id": 24,
+    "sensorId": 23,
+    "sensorName": "SENSOR DE TEMPERATURA",
+    "value": 20,
+    "recordedAtUtc": "2026-06-08T05:08:00.629",
+    "receivedAtUtc": "2026-06-08T05:30:35.2525776",
+    "isSynced": true,
+    "connectionStatusAtCollection": 1
+  },
+  {
+    "id": 21,
+    "sensorId": 21,
+    "sensorName": "SENSOR DE LUMINOSIDADE",
+    "value": 10,
+    "recordedAtUtc": "2026-06-08T04:54:13.511",
+    "receivedAtUtc": "2026-06-08T04:54:28.4053569",
+    "isSynced": true,
+    "connectionStatusAtCollection": 1
+  }
+]

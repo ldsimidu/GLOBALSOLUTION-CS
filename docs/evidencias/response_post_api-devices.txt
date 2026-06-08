@@ -1,0 +1,21 @@
+{
+  "id": 45,
+  "name": "DeviceExp07",
+  "serialNumber": "12243425666",
+  "environmentContext": "Space Exploration",
+  "batteryLevel": 100,
+  "connectionStatus": 1,
+  "lastReadingAtUtc": null,
+  "isActive": true,
+  "configuration": {
+    "id": 45,
+    "deviceId": 45,
+    "operationMode": 1,
+    "collectionIntervalSeconds": 50,
+    "temperatureAlertThreshold": 35,
+    "humidityAlertThreshold": 85,
+    "luminosityAlertThreshold": 20,
+    "airQualityAlertThreshold": 70,
+    "vibrationAlertThreshold": 50
+  }
+}

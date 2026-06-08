@@ -1,0 +1,4 @@
+{
+  "deviceId": 41,
+  "synchronizedReadings": 0
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "id": 44,
+    "name": "DeviceExp06",
+    "serialNumber": "122455666",
+    "environmentContext": "Space Exploration",
+    "batteryLevel": 100,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": null,
+    "isActive": true,
+    "sensorCount": 0,
+    "configuration": {
+      "operationMode": 1,
+      "collectionIntervalSeconds": 20
+    }
+  },
+  {
+    "id": 45,
+    "name": "DeviceExp07",
+    "serialNumber": "12243425666",
+    "environmentContext": "Space Exploration",
+    "batteryLevel": 100,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": null,
+    "isActive": true,
+    "sensorCount": 0,
+    "configuration": {
+      "operationMode": 1,
+      "collectionIntervalSeconds": 50
+    }
+  },
+  {
+    "id": 1,
+    "name": "ExplorationDevice-01",
+    "serialNumber": "00001",
+    "environmentContext": "Cave",
+    "batteryLevel": 100,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": null,
+    "isActive": true,
+    "sensorCount": 0,
+    "configuration": {
+      "operationMode": 1,
+      "collectionIntervalSeconds": 10
+    }
+  },
+  {
+    "id": 22,
+    "name": "ExplorationDevice-03",
+    "serialNumber": "203453",
+    "environmentContext": "Space Exploration",
+    "batteryLevel": 70,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": null,
+    "isActive": true,
+    "sensorCount": 0,
+    "configuration": {
+      "operationMode": 1,
+      "collectionIntervalSeconds": 200
+    }
+  },
+  {
+    "id": 41,
+    "name": "ExplorationDevice-04",
+    "serialNumber": "12345678",
+    "environmentContext": "Space Exploration",
+    "batteryLevel": 20,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": "2026-06-08T05:08:00.629",
+    "isActive": false,
+    "sensorCount": 2,
+    "configuration": {
+      "operationMode": 2,
+      "collectionIntervalSeconds": 50
+    }
+  },
+  {
+    "id": 2,
+    "name": "string",
+    "serialNumber": "string",
+    "environmentContext": "string",
+    "batteryLevel": 90,
+    "connectionStatus": 1,
+    "lastReadingAtUtc": "2026-06-04T07:58:24.093",
+    "isActive": true,
+    "sensorCount": 1,
+    "configuration": {
+      "operationMode": 1,
+      "collectionIntervalSeconds": 2
+    }
+  }
+]
